@@ -5,15 +5,18 @@
 import logging
 import time
 from datetime import datetime, timezone
+from nis import match
 
 from azure.core.exceptions import HttpResponseError
 from azure.identity import ClientSecretCredential
 from azure.mgmt.costmanagement import CostManagementClient
 from azure.mgmt.costmanagement.models import QueryDefinition, QueryTimePeriod
 from dateutil.relativedelta import relativedelta
+from pkg_resources import non_empty_lines
 from prometheus_client import Gauge
 
 
+# noinspection PyTypeChecker
 class MetricExporter:
     def __init__(self, polling_interval_seconds, metric_name, metric_name_usd, group_by, targets, secrets):
         self.polling_interval_seconds = polling_interval_seconds
@@ -42,6 +45,7 @@ class MetricExporter:
             self.fetch()
             time.sleep(self.polling_interval_seconds)
 
+
     def init_azure_client(self, tenant_id):
         client = CostManagementClient(
             credential=ClientSecretCredential(
@@ -53,13 +57,24 @@ class MetricExporter:
 
         return client
 
-    def query_azure_cost_explorer(self, azure_client, subscription, group_by, start_date, end_date):
+    def query_azure_cost_explorer(self, azure_client, subscription, group_by, start_date, end_date, tenant_id):
         scope = f"/subscriptions/{subscription}"
 
         groups = list()
         if group_by["enabled"]:
             for group in group_by["groups"]:
                 groups.append({"type": group["type"], "name": group["name"]})
+
+        # Get config from tenant setup
+        groupings_tenant = dict()
+        for target in self.targets:
+            if tenant_id is target["TenantId"]:
+                groupings_tenant = target["AdditionalGroupBy"]
+                if groupings_tenant is {'AdditionalGroupBy': 'ResourceGroup'}:
+                    groups.append({"type": "Dimension", "name": "ResourceGroup"})
+                else:
+                    None
+                break
 
         query = QueryDefinition(
             type="ActualCost",
@@ -124,7 +139,7 @@ class MetricExporter:
                 end_date = datetime.today()
                 start_date = end_date - relativedelta(days=1)
                 cost_response = self.query_azure_cost_explorer(
-                    azure_client, azure_account["Subscription"], self.group_by, start_date, end_date
+                    azure_client, azure_account["Subscription"], self.group_by, start_date, end_date, azure_account["TenantId"]
                 )
             except HttpResponseError as e:
                 logging.error(e.reason)

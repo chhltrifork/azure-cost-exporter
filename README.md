@@ -1,3 +1,13 @@
+# Building using BuildPacks for the registry
+Run this command to build the OCI image using BuildPacks directly to the Azure Container Registry (acr):
+```bash
+az acr pack build \
+    --registry crlynx \
+    --image azure-cost-exporter:test1 \
+    --pull --builder paketobuildpacks/builder-jammy-base\
+    https://github.com/chhltrifork/azure-cost-exporter.git
+```
+
 # Azure Cost Exporter
 
 On Azure we usually use the Cost Management portal to analyze costs, which is a separate dashboard and it only contains cost information. What if we would like to see the trends of both costs and the business metrics? Azure Cost Explorter enables this idea by exposing Azure cost data as Prometheus metrics so that developers can have them together with other observability metrics, in the same place.
