@@ -28,19 +28,19 @@ target_azure_accounts:
     Subscription: 7e2ff23d-ffe3-4346-8470-47c77e44f2bd
     ProjectName: andmoney-shared
     EnvironmentName: prod
-    AdditionalGroupBy: None
+    AdditionalGroupBy: ResourceGroup
   - TenantId: 15e848b8-e8aa-4790-88aa-827c7cc27bfa
     Subscription: 7c51e024-19d5-4229-8728-4d030887d778
     ProjectName: bconomy
     EnvironmentName: prod
-    AdditionalGroupBy: None
+    AdditionalGroupBy: ResourceGroup
   - TenantId: 15e848b8-e8aa-4790-88aa-827c7cc27bfa
     Subscription: cd0a0d9d-78f4-46dc-a866-0098b946a2ec
     ProjectName: bookme
     EnvironmentName: prod
-    AdditionalGroupBy: None
+   AdditionalGroupBy: ResourceGroup
   - TenantId: 15e848b8-e8aa-4790-88aa-827c7cc27bfa
     Subscription: 806c22d7-5a7c-48cf-9841-0a770fb73d28
     ProjectName: youngmoney
     EnvironmentName: prod
-    AdditionalGroupBy: None
+    AdditionalGroupBy: ResourceGroup
